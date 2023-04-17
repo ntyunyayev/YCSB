@@ -51,6 +51,8 @@
  import org.codehaus.jackson.node.ObjectNode;
  
  import org.apache.log4j.Logger;
+ import org.apache.log4j.Priority;
+ import org.apache.log4j.Level;
  
  import static java.util.concurrent.TimeUnit.MILLISECONDS;
  
@@ -60,7 +62,7 @@
  public class MemcachedClient extends DB {
  
    private final Logger logger = Logger.getLogger(getClass());
- 
+   
    protected static final ObjectMapper MAPPER = new ObjectMapper();
  
    private boolean checkOperationStatus;
@@ -113,6 +115,8 @@
    *     SpyMemcached.
    */
    protected net.spy.memcached.MemcachedClient memcachedClient() {
+
+    
      try{
        client = createMemcachedClient();
      } catch (Exception e) {
@@ -123,6 +127,10 @@
  
    @Override
    public void init() throws DBException {
+    Logger.getRootLogger().setLevel(Level.OFF); 
+    System.setProperty("net.spy.log.LoggerImpl", "net.spy.memcached.compat.log.SLF4JLogger");
+    Logger.getLogger("net.spy.memcached").setLevel(Level.OFF);
+
      try {
        client = createMemcachedClient();
        checkOperationStatus = Boolean.parseBoolean(
@@ -169,7 +177,6 @@
      List<InetSocketAddress> addresses = new ArrayList<InetSocketAddress>();
      String[] hosts = getProperties().getProperty(HOSTS_PROPERTY).split(",");
      for (String address : hosts) {
-       System.out.println("host : " + address);
        int colon = address.indexOf(":");
        int port = DEFAULT_PORT;
        String host = address;
